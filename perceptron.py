@@ -48,8 +48,10 @@ class perceptron:
          
         for i in range(len(y)):
             confusion_matrix[int((self.training_labels[i]+1)/2),int((y[i]+1)/2)]=confusion_matrix[int((self.training_labels[i]+1)/2),int((y[i]+1)/2)]+1
-        print('\n')
+        print('\nConfusion matrix')
         print(confusion_matrix)
+        print('Correct classification')
+        print((confusion_matrix[0,0]+confusion_matrix[1,1])/confusion_matrix.sum())
     
     def test(self):
         y = self.predict(self.test_data)
@@ -61,7 +63,6 @@ class perceptron:
     def predict(self,X):
         return np.array(np.sign(np.dot(X,self.weights)+self.bias))[0]
     
-    # Just to be cool
     def printProgressBar (self,iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
         percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
         filledLength = int(length * iteration // total)
