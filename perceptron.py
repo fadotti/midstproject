@@ -63,10 +63,10 @@ class perceptron:
     def predict(self,X):
         return np.array(np.sign(np.dot(X,self.weights)+self.bias))[0]
     
-    def printProgressBar (self,iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+    def printProgressBar (self,iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '|'):
         percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
         filledLength = int(length * iteration // total)
         bar = fill * filledLength + '-' * (length - filledLength)
-        print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
+        print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix))#, end = '\r')
         if iteration == total: 
             print()

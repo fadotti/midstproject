@@ -1,11 +1,9 @@
 from perceptron import perceptron
 import pandas as pd
 
-df = pd.read_csv('heart.csv',sep=',',header=0)
-X = df.iloc[:,:-1]
-y = df.iloc[:,-1]
-labels_num = [ -1 if x == 0 else 1 for x in y]
-test1 = perceptron(training_data=X,training_labels=labels_num,max_rounds=50000,learn_rate=0.05)
+X = pd.read_csv('weather_data.csv',sep=',',header=0)
+y = pd.read_csv('weather_labels.csv',sep=',',header=0)
+test1 = perceptron(training_data=X,training_labels=y,max_rounds=1000,learn_rate=0.05)
 
 test1.train()
 print(test1.weights)
