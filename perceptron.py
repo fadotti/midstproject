@@ -4,9 +4,23 @@ class perceptron:
     """Class defining perceptrons"""
     
     def update_weights(self,y):
-        """TODO: fix, parallelizzare"""
-        self.weights=np.array(self.weights+self.learn_rate*np.dot(np.transpose(self.training_data),(self.training_labels-y)))[0]
-    
+        """TODO: fix, parallelizzare"""        
+        self.weights=np.array(
+            self.weights+
+            np.array(
+                self.learn_rate*
+                sum(
+                    map(
+                        lambda x,y,z: (y-z)*x,
+                        self.training_data,
+                        self.training_labels,
+                        y)
+                )
+            )[0]
+        )
+        
+            
+                
     def __init__(self,learn_rate=0.0005,
                  training_data=None,
                  training_labels=None,
@@ -37,7 +51,7 @@ class perceptron:
         current_round = 0
         print('Training')
         self.printProgressBar(0, self.max_rounds, prefix = 'Progress:', suffix = 'Rounds', length = 50)
-        while not sum((self.training_labels-y)==0)/len(self.training_labels)>self.correctly_classified and current_round < self.max_rounds:
+        while not sum(map(lambda x,y: (x-y)==0,self.training_labels,y))/len(self.training_labels)>self.correctly_classified and current_round < self.max_rounds:
             current_round = current_round + 1
             self.printProgressBar(current_round, self.max_rounds, prefix = 'Progress:', suffix = 'Rounds', length = 50)
             
