@@ -23,61 +23,48 @@ class perceptron:
 
 
     def train(self, training_type = 'rand'):
-
         #training_type = "seq": controllo sequenziale del dataset
         #training_type = "rand": controllo casuale del dataset per un numero fissato di round
-
-
+        if training_type=='seq':
+            rows = xrange(len(self.training_labels))
+        else:
+            rows = [np.random.randint(len(self.training_labels)) for i in xrange(self.max_rounds)]
         # uso tutte le righe del training set sequenzialmente
-        if training_type == "seq":
+        dataset_rounds = 0 #numero di volte che ho ciclato sul dataset
+        #numero di punti misclassificati
+        previous_round_misclassified = self.training_data.shape[0] #assumo che all' inizio tutti siano misclassificati
+        dataset_round_misclassified = 0
+        # ciclo il dataset finche:
+        # non ho punti misclassificati oppure
+        # il numero di punti misclassficati non cambia oppure
+        # ho ciclato almeno 100 volte il dataset
+        while(1):
+            dataset_round_misclassified = 0
 
-            dataset_rounds = 0 #numero di volte che ho ciclato sul dataset
-            #numero di punti misclassificati
-            previous_round_misclassified = self.training_data.shape[0] #assumo che all' inizio tutti siano misclassificati
-
-            # ciclo il dataset finche:
-            # non ho punti misclassificati oppure
-            # il numero di punti misclassficati non cambia oppure
-            # ho ciclato almeno 100 volte il dataset
-            while(1):
-
-                dataset_round_misclassified = 0
-                current_row = 0
-
-                for row in self.training_data:
-                    #calcolo il valore di output con i pesi correnti
-                    y = np.sign(np.dot(self.weights, np.squeeze(np.array(row))))
-                    #controllo se l'etichetta ha lo stesso segno di y
-                    if not y == self.training_labels[current_row]:
-                        #se non sono uguali aggiorno i pesi spostando l'iperpiano verso x
-                        #     vettore((p+1)x1)      +                scalare                                *     vettore((p+1)x1)
-                        self.weights = self.weights + (self.learn_rate * self.training_labels[current_row]) * np.squeeze(np.array(row))
-                        dataset_round_misclassified += 1
-                    current_row += 1
-
-                #finito di ciclare sul dataset controllo quanti sono stati misclassificati
-                if dataset_round_misclassified == 0 or dataset_round_misclassified == previous_round_misclassified or dataset_rounds > 100:
-                    return self.weights
-                previous_round_misclassified = dataset_round_misclassified
-                dataset_rounds += 1
-
-
-        # uso solo alcune oss prese a caso nel training per un numero max_rounds di volte
-        elif training_type == "rand":
-            nrow = self.training_data.shape[0] #righe del training set
-            for round in range(self.max_rounds):
-                random_index = np.random.randint(nrow) #prendo un indice a caso
-                row = self.training_data[random_index]
+            for n_row in rows:
+                row = self.training_data[n_row]
                 #calcolo il valore di output con i pesi correnti
-                y = np.sign(np.dot(self.weights, np.squeeze(np.array(row))))
-                if not y == self.training_labels[random_index]:
+                y = self.predict(row)
+                if not y == self.training_labels[n_row]:
                     #se non sono uguali aggiorno i pesi spostando l'iperpiano verso x
                     #     vettore((p+1)x1)      +                scalare                                 *     vettore((p+1)x1)
-                    self.weights = self.weights + (self.learn_rate * self.training_labels[random_index]) * np.squeeze(np.array(row))
-
+                    self.weights = self.weights + (self.learn_rate * self.training_labels[n_row]) * np.squeeze(np.array(row))
+                    dataset_round_misclassified += 1
+            #finito di ciclare sul dataset controllo quanti sono stati misclassificati
+            #if dataset_round_misclassified == 0 or dataset_round_misclassified == previous_round_misclassified or dataset_rounds > 100:
+            #    return self.weights
+            if training_type == "rand" or dataset_round_misclassified == 0 or dataset_round_misclassified == previous_round_misclassified or dataset_rounds < 100:
+                break
+            previous_round_misclassified = dataset_round_misclassified
+            dataset_rounds += 1
         return self.weights
 
 
+    def predict(self,row):
+        return np.sign(np.dot(self.weights, np.squeeze(np.array(row))))
+
+    def update_weights(self,n,row):
+        self.weights = self.weights + (self.learn_rate * self.training_labels[n]) * np.squeeze(np.array(row))
 
     def test(self):
         confusion_matrix = np.matrix([[0, 0], [0, 0]])
@@ -85,20 +72,12 @@ class perceptron:
         for row in self.test_data:
             #print(current_row)
             #previsione
-            y = np.sign(np.dot(self.weights, np.squeeze(np.array(row))))
+            y = self.predict(row)
             #print(y)
             #aggiorno la matrice di confusione
-            if(y == self.test_labels[current_row]):
-                if (y > 0):
-                    confusion_matrix[0,0] += 1
-                else:
-                    confusion_matrix[1,1] += 1
-            else:
-                if (y - self.test_labels[current_row]) == 2: # 1 - (-1) = 2
-                    confusion_matrix[0,1] += 1
-                else:
-                    confusion_matrix[1,0] += 1
+            confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]=confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]+1
+
             current_row += 1
 
-        correct_classification = ((confusion_matrix[0,0]+confusion_matrix[1,1])/confusion_matrix.sum())*100
+        correct_classification = ((confusion_matrix[0,0]+confusion_matrix[1,1])/float(confusion_matrix.sum()))*100
         return confusion_matrix, correct_classification
