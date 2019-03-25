@@ -11,7 +11,7 @@ y_train = y.iloc[sample,1:]
 y_test = y.iloc[~sample,1:]
 test1 = perceptron(training_data=X_train,training_labels=y_train,test_data=X_test,test_labels=y_test,max_rounds=1000,learn_rate=0.05)
 
-test1.train()
+print(test1.train())
 print('-----------')
 print(test1.test())
 
