@@ -2,8 +2,6 @@ import numpy as np
 
 class perceptron:
 
-
-
     def __init__(self, training_data, training_labels, test_data = None, test_labels = None, learn_rate = 0.0005, bias = 0.0, correctly_classified = 0.95, max_rounds = 100000):
         #aggiungo una colonna di -1 alla matrice di training per gestire il bias
         self.training_data = np.column_stack((np.matrix(training_data), np.negative(np.ones(training_data.shape[0]))))
@@ -48,12 +46,12 @@ class perceptron:
                 if not y == self.training_labels[n_row]:
                     #se non sono uguali aggiorno i pesi spostando l'iperpiano verso x
                     #     vettore((p+1)x1)      +                scalare                                 *     vettore((p+1)x1)
-                    self.weights = self.weights + (self.learn_rate * self.training_labels[n_row]) * np.squeeze(np.array(row))
+                    self.update_weights(n_row,row)
                     dataset_round_misclassified += 1
             #finito di ciclare sul dataset controllo quanti sono stati misclassificati
             #if dataset_round_misclassified == 0 or dataset_round_misclassified == previous_round_misclassified or dataset_rounds > 100:
             #    return self.weights
-            if training_type == "rand" or dataset_round_misclassified == 0 or dataset_round_misclassified == previous_round_misclassified or dataset_rounds < 100:
+            if training_type == "rand" or dataset_round_misclassified == 0 or dataset_round_misclassified == previous_round_misclassified or dataset_rounds > 100:
                 break
             previous_round_misclassified = dataset_round_misclassified
             dataset_rounds += 1
