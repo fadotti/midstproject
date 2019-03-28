@@ -1,9 +1,9 @@
-from perceptron import perceptron
+from src.perceptron import perceptron
 import pandas as pd
 import numpy as np
 
-X = pd.read_csv('weather_data.csv',sep=',',header=0)
-y = pd.read_csv('weather_labels.csv',sep=',',header=0)
+X = pd.read_csv('datasets/weather_data.csv',sep=',',header=0)
+y = pd.read_csv('datasets/weather_labels.csv',sep=',',header=0)
 sample = np.random.rand(len(y)) < 0.6
 X_train = X.iloc[sample,1:]
 X_test = X.iloc[~sample,1:]

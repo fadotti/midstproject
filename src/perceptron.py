@@ -61,7 +61,7 @@ class perceptron:
     def predict(self,row):
         return np.sign(np.dot(self.weights, np.squeeze(np.array(row))))
 
-    def update_weights(self,n,row):
+    def __update_weights(self,n,row):
         self.weights = self.weights + (self.learn_rate * self.training_labels[n]) * np.squeeze(np.array(row))
 
     def test(self):
