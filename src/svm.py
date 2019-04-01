@@ -1,5 +1,5 @@
 import numpy as np
-
+import random as rn
 
 class svm:
 
@@ -12,7 +12,9 @@ class svm:
                  bias = 0.0, 
                  correctly_classified = 0.95, 
                  max_rounds = 100000,
-                 kernel = None
+                 kernel = None,
+                 cost_function = lambda w,X,y,C:(1/2) * np.sum(w**2) + C * np.sum(map(lambda xi,yi: max(0, 1 - yi * np.dot(xi,w)),X, y)),
+                 gradient_function = lambda w,x,yi,C:  w if (yi * np.dot(w,x)) >= 1 else w - C * (yi * x)
                  ):
         self.training_data = np.column_stack((np.matrix(training_data),np.negative(np.ones(training_data.shape[0]))))
         self.training_labels = np.array(training_labels)
@@ -27,6 +29,8 @@ class svm:
         self.correctly_classified = correctly_classified
         self.kernel = kernel
         self.C = 42
+        self.cost_function = cost_function
+        self.gradient_function = gradient_function
         
     
     def predict(self,row):
@@ -36,43 +40,31 @@ class svm:
         self.weights =np.squeeze(np.array(self.weights - self.learn_rate*(self.weights - self.C * label * pattern)))
         self.weights = self.weights/np.sqrt(sum(self.weights**2))
 
-    def __stochastic_gradient_descent(self,target_f, gradient_f, X, y, starting_w, starting_l_rate = .01):# se cambio lr la stima cambia abbastanza
+    def stochastic_gradient_descent(self):
 
-        w = starting_w
-        min_w, min_f = None, float('inf') #w corrispondente al valore minimo della funzione di costo
-        l_rate = starting_l_rate
-        no_improv = 0 #conta quante iterazioni senza miglioramenti ci sono state
-        x = list(range(X.shape[0]))
+        w = np.zeros(self.training_data.shape[1])
+        min_w, min_f = None, float('inf') 
+        l_rate = self.learn_rate
+        no_improv = 0 
+        x = list(range(self.training_data.shape[0]))
 
         while no_improv < 100:
-
-            #convergenza
-            f_value = target_f(X, y, w) #valore della funzione con il dataset e i valori correnti di w
-            #print(f_value)
-            if f_value < min_f: #se il valore della funzione e minore del valore minimo attuale
-                min_w, min_f = w, f_value #aggiorno i pesi e il valore minimo
-                no_improv = 0 #reimposto il contatore a 0
-            else: #altrimenti
-                no_improv += 1 #aggiungo 1 al contatore
-            #print(no_improv)
-                l_rate *= 0.9 #diminuisco il learning rate
-
-            #aggiornamento dei pesi
-            #shuffle del dataset
-            #X_1, y_1 = shuffle(X, y) #X e y originali non cambiano
-            #data = zip(X_1, y_1)
-
+            f_value = self.cost_function(w,self.training_data, self.training_labels,self.C)
+            if f_value < min_f: 
+                min_w, min_f = w, f_value 
+                no_improv = 0
+            else: 
+                no_improv += 1
+                l_rate *= 0.9
             rn.shuffle(x)
 
             for i in x:
-            #print(row[0])
-                gradient_i = gradient_f(X[i], y[i], w)
-            #print(gradient_i)
-                w = w - l_rate * gradient_i  # aggiorno i pesi
+                gradient_i = self.gradient_function(w,self.training_data[i,:], self.training_labels[i], self.C)
+                w = w - l_rate * gradient_i 
 
         return min_w, min_f
         
-    def train(self, training_type = 'rand'):
+    def train(self):
         
         for i in xrange(self.max_rounds):
             n_row = np.random.randint(len(self.training_labels))
@@ -87,11 +79,7 @@ class svm:
         confusion_matrix = np.matrix([[0, 0], [0, 0]])
         current_row = 0
         for row in self.test_data:
-            #print(current_row)
-            #previsione
             y = self.predict(row)
-            #print(y)
-            #aggiorno la matrice di confusione
             confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]=confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]+1
 
             current_row += 1

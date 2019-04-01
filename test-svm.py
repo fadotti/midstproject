@@ -10,7 +10,9 @@ from sklearn.datasets.samples_generator import make_blobs
 #TRAINING SET SIMULATO
 #(X,y) = make_blobs(n_samples=1000, n_features=2, centers=2, cluster_std=1.05, random_state=40)#linearmente separabili 100% (cambio std)
 (X,y) = make_blobs(n_samples = 10000, n_features = 2, centers = 2, cluster_std = 1, random_state=12)
- 
+
+
+
 X1=np.c_[np.ones((X.shape[0])),X]
 minx=float(np.squeeze(np.array(np.amin(X, 0)))[0])
 maxx=float(np.squeeze(np.array(np.amax(X, 0)))[0])
@@ -38,6 +40,8 @@ yt[yt==0]=-1
 #percettrone
 p = svm(X, y, Xt, yt)
 p.train()
+a = p.weights
 print(p.test()[0])
 print(p.test()[1])
 print(p.weights)
+print(p.stochastic_gradient_descent())
