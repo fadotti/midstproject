@@ -36,8 +36,41 @@ class svm:
         self.weights =np.squeeze(np.array(self.weights - self.learn_rate*(self.weights - self.C * label * pattern)))
         self.weights = self.weights/np.sqrt(sum(self.weights**2))
 
-    def __stochastic_gradient_descent(self):
-        print('WIP')
+    def __stochastic_gradient_descent(self,target_f, gradient_f, X, y, starting_w, starting_l_rate = .01):# se cambio lr la stima cambia abbastanza
+
+        w = starting_w
+        min_w, min_f = None, float('inf') #w corrispondente al valore minimo della funzione di costo
+        l_rate = starting_l_rate
+        no_improv = 0 #conta quante iterazioni senza miglioramenti ci sono state
+        x = list(range(X.shape[0]))
+
+        while no_improv < 100:
+
+            #convergenza
+            f_value = target_f(X, y, w) #valore della funzione con il dataset e i valori correnti di w
+            #print(f_value)
+            if f_value < min_f: #se il valore della funzione e minore del valore minimo attuale
+                min_w, min_f = w, f_value #aggiorno i pesi e il valore minimo
+                no_improv = 0 #reimposto il contatore a 0
+            else: #altrimenti
+                no_improv += 1 #aggiungo 1 al contatore
+            #print(no_improv)
+                l_rate *= 0.9 #diminuisco il learning rate
+
+            #aggiornamento dei pesi
+            #shuffle del dataset
+            #X_1, y_1 = shuffle(X, y) #X e y originali non cambiano
+            #data = zip(X_1, y_1)
+
+            rn.shuffle(x)
+
+            for i in x:
+            #print(row[0])
+                gradient_i = gradient_f(X[i], y[i], w)
+            #print(gradient_i)
+                w = w - l_rate * gradient_i  # aggiorno i pesi
+
+        return min_w, min_f
         
     def train(self, training_type = 'rand'):
         
