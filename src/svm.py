@@ -13,8 +13,8 @@ class svm:
                  correctly_classified = 0.95, 
                  max_rounds = 100000,
                  kernel = None,
-                 cost_function = lambda w,X,y,C:(1/2) * np.sum(w**2) + C * np.sum(map(lambda xi,yi: max(0, 1 - yi * np.dot(xi,w)),X, y)),
-                 gradient_function = lambda w,x,yi,C:  w if (yi * np.dot(w,x)) >= 1 else w - C * (yi * x)
+                 cost_function = lambda w,X,y,C:(1/2) * np.sum(w**2) + C * np.sum(list(map(lambda xi,yi: max(0, 1 - yi * np.dot(xi,w)),X, y))),
+                 gradient_function = lambda w,x,yi,C:  w if (yi * np.dot(x,w)) >= 1 else w - C * (yi * x)
                  ):
         self.training_data = np.column_stack((np.matrix(training_data),np.negative(np.ones(training_data.shape[0]))))
         self.training_labels = np.array(training_labels)
@@ -59,14 +59,14 @@ class svm:
             rn.shuffle(x)
 
             for i in x:
-                gradient_i = self.gradient_function(w,self.training_data[i,:], self.training_labels[i], self.C)
+                gradient_i = self.gradient_function(w,np.squeeze(np.array(self.training_data[i])), self.training_labels[i], self.C)
                 w = w - l_rate * gradient_i 
-
+            
         return min_w, min_f
         
     def train(self):
         
-        for i in xrange(self.max_rounds):
+        for i in range(self.max_rounds):
             n_row = np.random.randint(len(self.training_labels))
             row = self.training_data[n_row]
             label = self.training_labels[n_row]
@@ -87,6 +87,20 @@ class svm:
         correct_classification = ((confusion_matrix[0,0]+confusion_matrix[1,1])/float(confusion_matrix.sum()))*100
         return confusion_matrix, correct_classification
 
+    def test_2(self,w):
+        w2 = self.weights
+        self.weights = w
+        confusion_matrix = np.matrix([[0, 0], [0, 0]])
+        current_row = 0
+        for row in self.test_data:
+            y = self.predict(row)
+            confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]=confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]+1
+
+            current_row += 1
+
+        correct_classification = ((confusion_matrix[0,0]+confusion_matrix[1,1])/float(confusion_matrix.sum()))*100
+        self.weights = w2
+        return confusion_matrix, correct_classification
 
     
     
