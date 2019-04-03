@@ -24,9 +24,9 @@ class perceptron:
         #training_type = "seq": controllo sequenziale del dataset
         #training_type = "rand": controllo casuale del dataset per un numero fissato di round
         if training_type=='seq':
-            rows = xrange(len(self.training_labels))
+            rows = range(len(self.training_labels))
         else:
-            rows = [np.random.randint(len(self.training_labels)) for i in xrange(self.max_rounds)]
+            rows = [np.random.randint(len(self.training_labels)) for i in range(self.max_rounds)]
         # uso tutte le righe del training set sequenzialmente
         dataset_rounds = 0 #numero di volte che ho ciclato sul dataset
         #numero di punti misclassificati

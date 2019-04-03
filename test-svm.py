@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 scale = StandardScaler()
 #TRAINING SET SIMULATO
 #(X,y) = make_blobs(n_samples=1000, n_features=2, centers=2, cluster_std=1.05, random_state=40)#linearmente separabili 100% (cambio std)
-(X,y) = make_blobs(n_samples = 10000, n_features = 2, centers = 2, cluster_std = 1, random_state=12)
+(X,y) = make_blobs(n_samples = 10000, n_features = 2, centers = 2, cluster_std = 1, random_state=40)
 
 
 
@@ -38,17 +38,21 @@ Xt = np.asmatrix(Xt)
 yt[yt==0]=-1
  
 #percettrone
-p = svm(X, y, Xt, yt)
-p.train()
-a = p.weights
+p = svm(X, y, Xt, yt,C=10000,max_rounds=1000)
+""" p.train()
+w1 = p.weights
 print(p.test()[0])
 print(p.test()[1])
-print(p.weights)
+print(p.weights) """
+#w,tuttecose=p.minibatch_gradient_descent(30)
+
 w,tuttecose=p.stochastic_gradient_descent()
+print(w)
+print(tuttecose)
 xx = np.linspace(-2.5, 2.5)
 X1_std= scale.fit_transform(X1)
-a =  w[0]/w[1]
-yy = a*xx#-w[2]/w[1]
+a =  -w[0]/w[1]
+yy = a*xx
 plt.scatter(X1_std[:, 1], X1_std[:,2], marker='o', c=y)
 plt.plot(xx,yy)
 plt.plot(xx,yy+(1-w[2]/w[1]),linestyle='dashed',color='red')
