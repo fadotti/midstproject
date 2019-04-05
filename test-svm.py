@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from src.svm import svm
+from src.svm_mapreduce import svm
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn import svm as _svm 
 from sklearn.preprocessing import StandardScaler 
