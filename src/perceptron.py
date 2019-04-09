@@ -45,12 +45,10 @@ class perceptron:
                 y = self.predict(row)
                 if not y == self.training_labels[n_row]:
                     #se non sono uguali aggiorno i pesi spostando l'iperpiano verso x
-                    #     vettore((p+1)x1)      +                scalare                                 *     vettore((p+1)x1)
-                    self.update_weights(n_row,row)
+                    #vettore((p+1)x1) + scalare * vettore((p+1)x1)
+                    self.__update_weights(n_row,row)
                     dataset_round_misclassified += 1
             #finito di ciclare sul dataset controllo quanti sono stati misclassificati
-            #if dataset_round_misclassified == 0 or dataset_round_misclassified == previous_round_misclassified or dataset_rounds > 100:
-            #    return self.weights
             if training_type == "rand" or dataset_round_misclassified == 0 or dataset_round_misclassified == previous_round_misclassified or dataset_rounds > 100:
                 break
             previous_round_misclassified = dataset_round_misclassified
@@ -76,6 +74,5 @@ class perceptron:
             confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]=confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]+1
 
             current_row += 1
-
         correct_classification = ((confusion_matrix[0,0]+confusion_matrix[1,1])/float(confusion_matrix.sum()))*100
         return confusion_matrix, correct_classification

@@ -1,6 +1,6 @@
 import numpy as np
 import random as rn
-import math 
+
 class svm:
 
     def __init__(self, 
@@ -33,12 +33,11 @@ class svm:
         self.cost_function = cost_function
         self.hinge_function = hinge_function
         self.treshold = 0.0001
-    # STATICS 
+        self.support_vectors = set()
+
+
     def __select_C(self):
         return 1
-
-    
-    
     
     # CLASS METHODS
 
@@ -47,16 +46,21 @@ class svm:
 
     
     def train(self):
+
         w = self.weights
+        n = len(self.training_labels)
         min_w, min_f = None, float('inf') 
         l_rate = self.learn_rate
         no_improv = 0 
         x = list(range(self.training_data.shape[0]))
+        n_epochs = 0
 
         while no_improv < 100:
+            n_epochs += 1
             f_value = self.cost_function(w,self.training_data, self.training_labels,self.C)
-            print(f_value)
-            if abs(f_value - min_f)>self.treshold: 
+            #print(f_value)
+            #if abs(f_value - min_f) > self.treshold: 
+            if f_value < min_f:
                 min_w, min_f = w, f_value 
                 no_improv = 0
             else: 
@@ -64,28 +68,35 @@ class svm:
                 l_rate *= 0.9
             rn.shuffle(x)
 
+            self.get_sv(w)
             for i in x:
-                hinge_i = self.hinge_function(w,np.squeeze(np.array(self.training_data[i])), self.training_labels[i], self.C)
-                w = w - l_rate * (w/len(self.training_labels)+hinge_i)
+                hinge_i = self.hinge_function(w, np.squeeze(np.array(self.training_data[i])), self.training_labels[i], self.C)
+                w = w - l_rate * (w/n+hinge_i)
+                #check support vector
+                #if abs(np.dot(np.squeeze(np.array(self.training_data[i])),w)-1) < 0.0001 or abs(np.dot(np.squeeze(np.array(self.training_data[i])),w)+1) < 0.0001:
+                    #print(self.training_data[i])
+                    #self.support_vectors.add(i)
+            
+            print(n_epochs)
+                
         self.weights = min_w    
         return self.weights
 
     
     def test(self):
+
         confusion_matrix = np.matrix([[0, 0], [0, 0]])
         current_row = 0
         for row in self.test_data:
             y = self.predict(row)
             confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]=confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]+1
-
             current_row += 1
-
         correct_classification = ((confusion_matrix[0,0]+confusion_matrix[1,1])/float(confusion_matrix.sum()))*100
         return confusion_matrix, correct_classification
 
-    
-    
-    
-
-    
+    def get_sv(self,w):
+        n = list(range(self.training_data.shape[0]))
+        for j in n:
+            if abs(np.dot(np.squeeze(np.array(self.training_data[j])),w)-1) < 0.0001 or abs(np.dot(np.squeeze(np.array(self.training_data[j])),w)+1) < 0.0001:
+                self.support_vectors.add(j)
 
