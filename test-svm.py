@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 scale = StandardScaler()
 #TRAINING SET SIMULATO
 #(X,y) = make_blobs(n_samples=1000, n_features=2, centers=2, cluster_std=1.05, random_state=62)#linearmente separabili 100% (cambio std)
-(X,y) = make_blobs(n_samples = 10000, n_features = 2, centers = 2, cluster_std = 1, random_state=99)
+(X,y) = make_blobs(n_samples = 100000, n_features = 2, centers = 2, cluster_std = 1, random_state=99)
 
 
 
@@ -39,7 +39,7 @@ yt[yt==0]=-1
 X = scale.fit_transform(X)
 Xt = scale.fit_transform(Xt)
 p = svm(X, y, Xt, yt,C=1,max_rounds=100)
-p.train(treshold=0.1)
+p.train(treshold=0.5)
 w=p.weights
 #p2.train()
 #w2 = p2.weights
@@ -73,10 +73,12 @@ plt.plot(xx,yy1,color='orange')
 #plt.plot(xx,yy2,color='purple')
 plt.plot(xx, yy1+(1-k.intercept_[0]/np.sqrt(np.sum(k.coef_[0]**2))),linestyle='dashed',color='orange')
 plt.plot(xx, yy1-(1-k.intercept_[0]/np.sqrt(np.sum(k.coef_[0]**2))),linestyle='dashed',color='orange')
-plt.plot(xx, yy+(1-w[2]),linestyle='dashed',color='blue')
-plt.plot(xx, yy-(1-w[2]),linestyle='dashed',color='blue')
+plt.plot(xx, yy+(1-w[2]/np.sqrt((w[0]+w[1])**2)),linestyle='dashed',color='blue')
+plt.plot(xx, yy-(1-w[2]/np.sqrt((w[0]+w[1])**2)),linestyle='dashed',color='blue')
 #plt.plot(xx, yy2+(1-w2[2]),linestyle='dashed',color='purple')
 #plt.plot(xx, yy2-(1-w2[2]),linestyle='dashed',color='purple')
 plt.scatter(k.support_vectors_[:,0],k.support_vectors_[:,1])
 plt.show()
+
+
 

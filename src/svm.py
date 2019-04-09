@@ -1,6 +1,8 @@
 import numpy as np
 import random as rn
 import math 
+
+
 class svm:
 
     def __init__(self, 
@@ -37,6 +39,8 @@ class svm:
     def __select_C(self):
         return 1
 
+    
+
     def __CDRM(self,treshold):
         if(treshold==float('inf')):
             return range(len(self.training_labels))
@@ -47,8 +51,8 @@ class svm:
             d1 = np.sqrt(np.sum(np.squeeze(np.array((self.training_data[i]-m1)))**2)).astype('float')
             d2 = np.sqrt(np.sum(np.squeeze(np.array((self.training_data[i]-m2)))**2)).astype('float')
             
-            if((d1/d2)**self.training_labels[i] <= treshold):
-                vectors.append(i)
+            if((d1/d2)**self.training_labels[i] > treshold):
+               vectors.append(i)
         return vectors
     
     
