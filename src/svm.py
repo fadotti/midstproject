@@ -37,7 +37,19 @@ class svm:
     def __select_C(self):
         return 1
 
-    
+    def __CDRM(self,treshold):
+        if(treshold==float('inf')):
+            return range(len(self.training_labels))
+        m1 = np.mean(self.training_data[self.training_labels==1],0)
+        m2 = np.mean(self.training_data[self.training_labels==-1],0)
+        vectors = []
+        for i in range(len(self.training_labels)):
+            d1 = np.sqrt(np.sum(np.squeeze(np.array((self.training_data[i]-m1)))**2)).astype('float')
+            d2 = np.sqrt(np.sum(np.squeeze(np.array((self.training_data[i]-m2)))**2)).astype('float')
+            
+            if((d1/d2)**self.training_labels[i] <= treshold):
+                vectors.append(i)
+        return vectors
     
     
     # CLASS METHODS
@@ -46,15 +58,16 @@ class svm:
         return np.sign(np.dot(self.weights, np.squeeze(np.array(row)))).astype('int')
 
     
-    def train(self):
+    def train(self,treshold=float('inf')):
         w = self.weights
         min_w, min_f = None, float('inf') 
         l_rate = self.learn_rate
-        no_improv = 0 
-        x = list(range(self.training_data.shape[0]))
-
+        no_improv = 0
+        x = self.__CDRM(treshold)
+        
         while no_improv < 100:
-            f_value = self.cost_function(w,self.training_data, self.training_labels,self.C)
+            
+            f_value = self.cost_function(w,self.training_data[x], self.training_labels[x],self.C)
             print(f_value)
             if abs(f_value - min_f)>self.treshold: 
                 min_w, min_f = w, f_value 
@@ -66,7 +79,7 @@ class svm:
 
             for i in x:
                 hinge_i = self.hinge_function(w,np.squeeze(np.array(self.training_data[i])), self.training_labels[i], self.C)
-                w = w - l_rate * (w/len(self.training_labels)+hinge_i)
+                w = w - l_rate * (w/len(x)+hinge_i)
         self.weights = min_w    
         return self.weights
 
