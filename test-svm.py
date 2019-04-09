@@ -30,7 +30,7 @@ X1t=np.c_[np.ones((Xt.shape[0])),Xt]
 plt.scatter(X1t[:, 1],X1t[:, 2], marker='o', c=yt)
 plt.axis([minx,maxx,miny,maxy])
 plt.show()
- 
+#dahdawuwdaawdhiwad 
 #trasformazioni necessarie
 X = np.asmatrix(X)
 y[y==0]=-1
