@@ -39,7 +39,6 @@ class svm:
     # STATICS 
     def __select_C(self):
         return 1
-
     
 
     def __CDRM(self,treshold):
@@ -65,6 +64,7 @@ class svm:
     
     def train(self,treshold=float('inf')):
         w = self.weights
+        n = len(self.training_labels)
         min_w, min_f = None, float('inf') 
         l_rate = self.learn_rate
         no_improv = 0
@@ -82,6 +82,7 @@ class svm:
                 l_rate *= 0.9
             rn.shuffle(x)
 
+            self.get_sv(w)
             for i in x:
                 hinge_i = self.hinge_function(w,np.squeeze(np.array(self.training_data[i])), self.training_labels[i], self.C)
                 w = w - l_rate * (w/len(x)+hinge_i)
@@ -92,14 +93,13 @@ class svm:
 
     
     def test(self):
+
         confusion_matrix = np.matrix([[0, 0], [0, 0]])
         current_row = 0
         for row in self.test_data:
             y = self.predict(row)
             confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]=confusion_matrix[int((self.test_labels[current_row]+1)/2),int((y+1)/2)]+1
-
             current_row += 1
-
         correct_classification = ((confusion_matrix[0,0]+confusion_matrix[1,1])/float(confusion_matrix.sum()))*100
         return confusion_matrix, correct_classification
 
@@ -110,8 +110,6 @@ class svm:
             for j in n:
                 if -1-treshold<=np.dot(np.squeeze(np.array(self.training_data[j])),w) < 1+treshold:
                     self.support_vectors.add(j)
-
-    
 
     
 

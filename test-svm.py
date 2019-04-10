@@ -1,4 +1,3 @@
-#import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from src.svm import svm
@@ -9,7 +8,9 @@ import datetime
 import random
 import time	 
 ###################################################################################
+
 scale = StandardScaler()
+
 #TRAINING SET SIMULATO
 #(X,y) = make_blobs(n_samples=1000, n_features=2, centers=2, cluster_std=1.05, random_state=62)#linearmente separabili 100% (cambio std)
 (X,y) = make_blobs(n_samples = 10000, n_features = 10, centers = 2, cluster_std =6, random_state=64)
@@ -21,7 +22,7 @@ minx=float(np.squeeze(np.array(np.amin(X, 0)))[0])
 maxx=float(np.squeeze(np.array(np.amax(X, 0)))[0])
 miny=float(np.squeeze(np.array(np.amin(X, 0)))[1])
 maxy=float(np.squeeze(np.array(np.amax(X, 0)))[1])
-plt.scatter(X1[:, 1], X1[:,2], marker='o', c=y)
+plt.scatter(X[:, 0], X[:,1], marker='o', c=y)
 plt.axis([minx,maxx,miny,maxy])
 plt.show()
  
@@ -39,6 +40,7 @@ X = np.asmatrix(X)
 y[y==0]=-1
 Xt = np.asmatrix(Xt)
 yt[yt==0]=-1
+#standardizzo i dati sia di training che di set
 X = scale.fit_transform(X)
 Xt = scale.fit_transform(Xt)
 p = svm(X, y, Xt, yt,C=1,max_rounds=100)
@@ -63,17 +65,50 @@ k = cose.fit(X,y)
 X1_std= scale.fit_transform(X1)
 a =  -w[0]/w[1]
 yy = a*xx
-plt.scatter(X1_std[:, 1], X1_std[:,2], marker='o', c=y)
+#per scikitsvm
+b =  -k.coef_[0][0]/k.coef_[0][1]
+yy1 = b*xx
+
+#plot delle due rette
 plt.plot(xx,yy)
-plt.plot(xx,yy+(1-w[2]),linestyle='dashed',color='red')
-plt.plot(xx,yy-(1-w[2]),linestyle='dashed',color='red')
-plt.show() """
+plt.plot(xx,yy1)
+
+#support vectors
+plt.scatter(X[sv,0],X[sv,1], c= 'b') #support vector mysvm
+plt.scatter(k.support_vectors_[:,0],k.support_vectors_[:,1], c= 'r') #support vector scikitsvm
+plt.show()
 
 
 
 
-Xt_std= scale.fit_transform(X1t)
+
+########################################################
+
+
+print('--------------------')
+print(k.support_)
+print('--------------------')
+print(sv)
+
+
+#print(sv)
+#mysvm1 = svm(X[sv], y[sv], Xt, yt,C=1,max_rounds=100)
+#mysvm1.train()
+
+#se uso i vettori di supporto di scikit la retta è comunque simile alla originale quindi boh
+mysvm2 = svm(X[k.support_],y[k.support_], Xt, yt,C=1,max_rounds=100)
+mysvm2.train()
+w2 = mysvm2.weights
+print(w2) #pesi
+
 xx = np.linspace(-2.5, 2.5)
+plt.scatter(X[:, 0], X[:,1], marker='o', c=y)
+
+#coefficienti delle rette
+#per mysvm
+a =  -w[0]/w[1]
+yy = a*xx
+#per scikitsvm
 b =  -k.coef_[0][0]/k.coef_[0][1]
 yy1 = b*xx
 a =  -w[0]/w[1]
