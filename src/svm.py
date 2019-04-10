@@ -35,6 +35,7 @@ class svm:
         self.cost_function = cost_function
         self.hinge_function = hinge_function
         self.treshold = 0.0001
+        self.support_vectors = set()
     # STATICS 
     def __select_C(self):
         return 1
@@ -43,7 +44,7 @@ class svm:
 
     def __CDRM(self,treshold):
         if(treshold==float('inf')):
-            return range(len(self.training_labels))
+            return list(range(len(self.training_labels)))
         m1 = np.mean(self.training_data[self.training_labels==1],0)
         m2 = np.mean(self.training_data[self.training_labels==-1],0)
         vectors = []
@@ -84,6 +85,8 @@ class svm:
             for i in x:
                 hinge_i = self.hinge_function(w,np.squeeze(np.array(self.training_data[i])), self.training_labels[i], self.C)
                 w = w - l_rate * (w/len(x)+hinge_i)
+            self.get_sv(w,x)
+            x = list(self.support_vectors)
         self.weights = min_w    
         return self.weights
 
@@ -100,8 +103,14 @@ class svm:
         correct_classification = ((confusion_matrix[0,0]+confusion_matrix[1,1])/float(confusion_matrix.sum()))*100
         return confusion_matrix, correct_classification
 
-    
-    
+    def get_sv(self,w=None,X=None,treshold=0.01):
+            n = X if X is not None else list(range(self.training_data.shape[0]))
+            if w is None: 
+                w=self.weights
+            for j in n:
+                if -1-treshold<=np.dot(np.squeeze(np.array(self.training_data[j])),w) < 1+treshold:
+                    self.support_vectors.add(j)
+
     
 
     

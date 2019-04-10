@@ -5,11 +5,14 @@ from src.svm import svm
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn import svm as _svm 
 from sklearn.preprocessing import StandardScaler 
+import datetime
+import random
+import time	 
 ###################################################################################
 scale = StandardScaler()
 #TRAINING SET SIMULATO
 #(X,y) = make_blobs(n_samples=1000, n_features=2, centers=2, cluster_std=1.05, random_state=62)#linearmente separabili 100% (cambio std)
-(X,y) = make_blobs(n_samples = 100000, n_features = 2, centers = 2, cluster_std = 1, random_state=99)
+(X,y) = make_blobs(n_samples = 10000, n_features = 10, centers = 2, cluster_std =6, random_state=64)
 
 
 
@@ -24,13 +27,13 @@ plt.show()
  
 #TEST SET SIMULATO
 #(X,y) = make_blobs(n_samples=3000, n_features=2, centers=2, cluster_std=1.05, random_state=40)#linearmente separabili 100%
-(Xt, yt) = make_blobs(n_samples=3000, n_features = 2, centers=2, cluster_std=1, random_state=99)
+(Xt, yt) = make_blobs(n_samples=3000, n_features = 10, centers=2, cluster_std=6, random_state=64)
  
 X1t=np.c_[np.ones((Xt.shape[0])),Xt]
-plt.scatter(X1t[:, 1],X1t[:, 2], marker='o', c=yt)
+""" plt.scatter(X1t[:, 1],X1t[:, 2], marker='o', c=yt)
 plt.axis([minx,maxx,miny,maxy])
 plt.show()
- 
+ """ 
 #trasformazioni necessarie
 X = np.asmatrix(X)
 y[y==0]=-1
@@ -39,8 +42,19 @@ yt[yt==0]=-1
 X = scale.fit_transform(X)
 Xt = scale.fit_transform(Xt)
 p = svm(X, y, Xt, yt,C=1,max_rounds=100)
-p.train(treshold=0.5)
+time.sleep(1)
+
+# segna il momento d'inizio
+starttime = datetime.datetime.now()
+p.train()
+endtime = datetime.datetime.now()
+# calcola il tempo trascorso
+deltaT = endtime - starttime
+# calcola il tempo medio
+accessTime = deltaT.total_seconds() * 1000
+print(accessTime)
 w=p.weights
+
 #p2.train()
 #w2 = p2.weights
 cose = _svm.SVC(kernel='linear')
@@ -62,7 +76,6 @@ Xt_std= scale.fit_transform(X1t)
 xx = np.linspace(-2.5, 2.5)
 b =  -k.coef_[0][0]/k.coef_[0][1]
 yy1 = b*xx
-w = w*np.sqrt(np.sum(w**2))
 a =  -w[0]/w[1]
 #a2 =  -w2[0]/w2[1]
 yy = a*xx
@@ -77,8 +90,9 @@ plt.plot(xx, yy+(1-w[2]/np.sqrt((w[0]+w[1])**2)),linestyle='dashed',color='blue'
 plt.plot(xx, yy-(1-w[2]/np.sqrt((w[0]+w[1])**2)),linestyle='dashed',color='blue')
 #plt.plot(xx, yy2+(1-w2[2]),linestyle='dashed',color='purple')
 #plt.plot(xx, yy2-(1-w2[2]),linestyle='dashed',color='purple')
-plt.scatter(k.support_vectors_[:,0],k.support_vectors_[:,1])
+# plt.scatter(k.support_vectors_[:,0],k.support_vectors_[:,1])
+#plt.scatter(np.squeeze(np.array(p.training_data[list(p.support_vectors),0])),np.squeeze(np.array(p.training_data[list(p.support_vectors),1])))
 plt.show()
 
-
+#########################################################################
 
