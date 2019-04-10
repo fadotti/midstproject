@@ -61,9 +61,9 @@ w=p.weights
 #w2 = p2.weights
 cose = _svm.SVC(kernel='linear')
 k = cose.fit(X,y)
-""" xx = np.linspace(-2.5, 2.5)
+xx = np.linspace(-2.5, 2.5)
 X1_std= scale.fit_transform(X1)
-a =  -w[0]/w[1]
+""" a =  -w[0]/w[1]
 yy = a*xx
 #per scikitsvm
 b =  -k.coef_[0][0]/k.coef_[0][1]
@@ -102,7 +102,7 @@ w2 = mysvm2.weights
 print(w2) #pesi
 
 xx = np.linspace(-2.5, 2.5)
-plt.scatter(X[:, 0], X[:,1], marker='o', c=y)
+plt.scatter(X[:, 0], X[:,1], marker='o', c=y) """
 
 #coefficienti delle rette
 #per mysvm
