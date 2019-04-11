@@ -73,7 +73,6 @@ class svm:
         while no_improv < 100:
             
             f_value = self.cost_function(w,self.training_data[x], self.training_labels[x],self.C)
-            print(f_value)
             if abs(f_value - min_f)>self.treshold: 
                 min_w, min_f = w, f_value 
                 no_improv = 0
@@ -103,6 +102,7 @@ class svm:
         return confusion_matrix, correct_classification
 
     def get_sv(self,w=None,X=None,treshold=0.01):
+            self.support_vectors = set()
             n = X if X is not None else list(range(self.training_data.shape[0]))
             if w is None: 
                 w=self.weights

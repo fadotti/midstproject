@@ -13,18 +13,18 @@ scale = StandardScaler()
 
 #TRAINING SET SIMULATO
 #(X,y) = make_blobs(n_samples=1000, n_features=2, centers=2, cluster_std=1.05, random_state=62)#linearmente separabili 100% (cambio std)
-(X,y) = make_blobs(n_samples = 1000000, n_features = 2, centers = 2, cluster_std =1, random_state=99)
+(X,y) = make_blobs(n_samples = 10000, n_features = 2, centers = 2, cluster_std =1, random_state=99)
 
 
 
-""" X1=np.c_[np.ones((X.shape[0])),X]
+X1=np.c_[np.ones((X.shape[0])),X]
 minx=float(np.squeeze(np.array(np.amin(X, 0)))[0])
 maxx=float(np.squeeze(np.array(np.amax(X, 0)))[0])
 miny=float(np.squeeze(np.array(np.amin(X, 0)))[1])
 maxy=float(np.squeeze(np.array(np.amax(X, 0)))[1])
 plt.scatter(X[:, 0], X[:,1], marker='o', c=y)
 plt.axis([minx,maxx,miny,maxy])
-plt.show() """
+plt.show()
  
 #TEST SET SIMULATO
 #(X,y) = make_blobs(n_samples=3000, n_features=2, centers=2, cluster_std=1.05, random_state=40)#linearmente separabili 100%
@@ -130,4 +130,3 @@ plt.plot(xx, yy-(1-w[2]/np.sqrt((w[0]+w[1])**2)),linestyle='dashed',color='blue'
 plt.show()
 
 #########################################################################
-
