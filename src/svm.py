@@ -82,7 +82,6 @@ class svm:
                 l_rate *= 0.9
             rn.shuffle(x)
 
-            self.get_sv(w)
             for i in x:
                 hinge_i = self.hinge_function(w,np.squeeze(np.array(self.training_data[i])), self.training_labels[i], self.C)
                 w = w - l_rate * (w/len(x)+hinge_i)
