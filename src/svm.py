@@ -1,6 +1,22 @@
 import numpy as np
 import random as rn
 import math 
+import multiprocessing
+
+def single_cdrm(args):
+    i=args[0]
+    m1=args[1]
+    m2 = args[2]
+    x = args[3]
+    y = args[4]
+    treshold = args[5]
+    d1 = np.sqrt(np.sum(np.squeeze(np.array((x-m1)))**2)).astype('float')
+    d2 = np.sqrt(np.sum(np.squeeze(np.array((x-m2)))**2)).astype('float')
+    
+    if((d1/d2)**y > treshold):
+        return i
+
+
 
 
 class svm:
@@ -17,7 +33,8 @@ class svm:
                  kernel = None,
                  C = None,
                  cost_function = lambda w,X,y,C:(1/2) * np.sum(w**2) + C * np.sum(list(map(lambda xi,yi: max(0, 1 - yi * np.dot(xi,w)),X, y))),
-                 hinge_function = lambda w,x,yi,C:  0 if (yi * np.dot(x,w)) >= 1  else  - C * (yi * x)
+                 hinge_function = lambda w,x,yi,C:  0 if (yi * np.dot(x,w)) >= 1  else  - C * (yi * x),
+                 cores = multiprocessing.cpu_count()
                  ):
         self.training_data = np.column_stack((np.matrix(training_data),np.ones(training_data.shape[0])))
         self.training_labels = np.array(training_labels)
@@ -36,10 +53,12 @@ class svm:
         self.hinge_function = hinge_function
         self.treshold = 0.0001
         self.support_vectors = set()
+        self.cores = cores
     # STATICS 
     def __select_C(self):
         return 1
     
+
 
     def __CDRM(self,treshold):
         if(treshold==float('inf')):
@@ -47,13 +66,26 @@ class svm:
         m1 = np.mean(self.training_data[self.training_labels==1],0)
         m2 = np.mean(self.training_data[self.training_labels==-1],0)
         vectors = []
-        for i in range(len(self.training_labels)):
+        pool = multiprocessing.Pool(self.cores)
+        vectors = pool.map(single_cdrm,list(
+            map(lambda i,m1,m2,x,y,treshold:[i,m1,m2,x,y,treshold] ,
+            list(
+                range(len(self.training_labels))),
+                [m1]*len(self.training_labels),
+                [m2]*len(self.training_labels),
+                self.training_data,
+                self.training_labels,
+                [treshold]*len(self.training_labels)
+                )
+            )
+            )
+        """ for i in range(len(self.training_labels)):
             d1 = np.sqrt(np.sum(np.squeeze(np.array((self.training_data[i]-m1)))**2)).astype('float')
             d2 = np.sqrt(np.sum(np.squeeze(np.array((self.training_data[i]-m2)))**2)).astype('float')
             
             if((d1/d2)**self.training_labels[i] > treshold):
-               vectors.append(i)
-        return vectors
+               vectors.append(i) """
+        return [x for x in vectors if x is not None]
     
     
     # CLASS METHODS
@@ -69,7 +101,7 @@ class svm:
         l_rate = self.learn_rate
         no_improv = 0
         x = self.__CDRM(treshold)
-        
+        print('done')
         while no_improv < 100:
             
             f_value = self.cost_function(w,self.training_data[x], self.training_labels[x],self.C)
@@ -109,6 +141,7 @@ class svm:
             for j in n:
                 if -1-treshold<=np.dot(np.squeeze(np.array(self.training_data[j])),w) < 1+treshold:
                     self.support_vectors.add(j)
+ 
 
     
 

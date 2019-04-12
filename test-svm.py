@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from src.svm_mapreduce import svm
+from src.svm import svm
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn import svm as _svm 
 from sklearn.preprocessing import StandardScaler 
@@ -13,22 +13,22 @@ scale = StandardScaler()
 
 #TRAINING SET SIMULATO
 #(X,y) = make_blobs(n_samples=1000, n_features=2, centers=2, cluster_std=1.05, random_state=62)#linearmente separabili 100% (cambio std)
-(X,y) = make_blobs(n_samples = 10000, n_features = 2, centers = 2, cluster_std =1, random_state=99)
+(X,y) = make_blobs(n_samples = 10000, n_features = 100, centers = 2, cluster_std =1, random_state=99)
 
 
 
-X1=np.c_[np.ones((X.shape[0])),X]
+""" X1=np.c_[np.ones((X.shape[0])),X]
 minx=float(np.squeeze(np.array(np.amin(X, 0)))[0])
 maxx=float(np.squeeze(np.array(np.amax(X, 0)))[0])
 miny=float(np.squeeze(np.array(np.amin(X, 0)))[1])
 maxy=float(np.squeeze(np.array(np.amax(X, 0)))[1])
 plt.scatter(X[:, 0], X[:,1], marker='o', c=y)
 plt.axis([minx,maxx,miny,maxy])
-plt.show()
+plt.show() """
  
 #TEST SET SIMULATO
 #(X,y) = make_blobs(n_samples=3000, n_features=2, centers=2, cluster_std=1.05, random_state=40)#linearmente separabili 100%
-(Xt, yt) = make_blobs(n_samples=3000, n_features = 2, centers=2, cluster_std=1, random_state=99)
+(Xt, yt) = make_blobs(n_samples=3000, n_features = 10, centers=2, cluster_std=1, random_state=99)
  
 X1t=np.c_[np.ones((Xt.shape[0])),Xt]
 """ plt.scatter(X1t[:, 1],X1t[:, 2], marker='o', c=yt)
@@ -53,8 +53,9 @@ endtime = datetime.datetime.now()
 # calcola il tempo trascorso
 deltaT = endtime - starttime
 # calcola il tempo medio
-accessTime = deltaT.total_seconds() * 1000
+accessTime = deltaT.total_seconds()
 print(accessTime)
+print(accessTime/60)
 w=p.weights
 
 #p2.train()
@@ -119,10 +120,10 @@ plt.scatter(Xt[:, 0], Xt[:,1], marker='o', c=yt)
 plt.plot(xx,yy,color='blue')
 plt.plot(xx,yy1,color='orange')
 #plt.plot(xx,yy2,color='purple')
-plt.plot(xx, yy1+(1-k.intercept_[0]/np.sqrt(np.sum(k.coef_[0]**2))),linestyle='dashed',color='orange')
-plt.plot(xx, yy1-(1-k.intercept_[0]/np.sqrt(np.sum(k.coef_[0]**2))),linestyle='dashed',color='orange')
-plt.plot(xx, yy+(1-w[2]/np.sqrt((w[0]+w[1])**2)),linestyle='dashed',color='blue')
-plt.plot(xx, yy-(1-w[2]/np.sqrt((w[0]+w[1])**2)),linestyle='dashed',color='blue')
+# plt.plot(xx, yy1+(1-k.intercept_[0]/np.sqrt(np.sum(k.coef_[0]**2))),linestyle='dashed',color='orange')
+# plt.plot(xx, yy1-(1-k.intercept_[0]/np.sqrt(np.sum(k.coef_[0]**2))),linestyle='dashed',color='orange')
+# plt.plot(xx, yy+(1-w[2]/np.sqrt((w[0]+w[1])**2)),linestyle='dashed',color='blue')
+# plt.plot(xx, yy-(1-w[2]/np.sqrt((w[0]+w[1])**2)),linestyle='dashed',color='blue')
 #plt.plot(xx, yy2+(1-w2[2]),linestyle='dashed',color='purple')
 #plt.plot(xx, yy2-(1-w2[2]),linestyle='dashed',color='purple')
 # plt.scatter(k.support_vectors_[:,0],k.support_vectors_[:,1])
