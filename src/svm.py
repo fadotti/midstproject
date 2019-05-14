@@ -2,6 +2,8 @@ import numpy as np
 import random as rn
 import math 
 import multiprocessing
+import matplotlib.pyplot as plt
+import datetime
 
 def single_cdrm(args):
     i=args[0]
@@ -51,7 +53,7 @@ class svm:
         self.C = C if C is not None else self.__select_C()
         self.cost_function = cost_function
         self.hinge_function = hinge_function
-        self.treshold = 0.0001
+        self.treshold = 0.001
         self.support_vectors = set()
         self.cores = cores
     # STATICS 
@@ -94,21 +96,25 @@ class svm:
         return np.sign(np.dot(self.weights, np.squeeze(np.array(row)))).astype('int')
 
     
-    def train(self,treshold=float('inf')):
+    def train(self,treshold=float('inf'),plots=False,reduction = True):
         w = self.weights
         n = len(self.training_labels)
         min_w, min_f = None, float('inf') 
         l_rate = self.learn_rate
         no_improv = 0
+        epoch = 0
+        j=0
         x = self.__CDRM(treshold)
-        print('done')
-        while no_improv < 100:
+        tresh=1
+        while no_improv < 100 and epoch<self.max_rounds :
             
             f_value = self.cost_function(w,self.training_data[x], self.training_labels[x],self.C)
-            if abs(f_value - min_f)>self.treshold: 
+            if  min_f-f_value>self.treshold: 
                 min_w, min_f = w, f_value 
                 no_improv = 0
-            else: 
+                epoch=epoch+1
+            else:
+                epoch = 0
                 no_improv += 1
                 l_rate *= 0.9
             rn.shuffle(x)
@@ -116,12 +122,31 @@ class svm:
             for i in x:
                 hinge_i = self.hinge_function(w,np.squeeze(np.array(self.training_data[i])), self.training_labels[i], self.C)
                 w = w - l_rate * (w/len(x)+hinge_i)
-            self.get_sv(w,x)
-            x = list(self.support_vectors)
+            if(plots):
+                self.__plot_to_file(j,w)
+                j=j+1
+            if(reduction):
+                self.get_sv(w,x,tresh)
+                tresh=tresh*0.9
+                x = list(self.support_vectors)
+            
         self.weights = min_w    
         return self.weights
 
-    
+    def __plot_to_file(self,i,w):
+        xx = np.linspace(-2.5, 2.5)
+        a =  -w[0]/w[1]
+        yy = a*xx-w[2]/w[1]
+        plt.scatter(np.squeeze(np.array(self.training_data))[:, 0], np.squeeze(np.array(self.training_data))[:,1], marker='o',c=np.array(np.squeeze(self.training_labels)))
+        plt.scatter(np.squeeze(np.array(self.training_data))[(np.array(list(self.support_vectors))).astype(int), 0], np.squeeze(np.array(self.training_data))[(np.array(list(self.support_vectors))).astype(int),1], marker='*', color='green')
+        plt.plot(xx,yy,color='blue')
+        axes = plt.gca()
+        axes.set_ylim([np.min(np.squeeze(np.array(self.training_data))[:, 1]).astype('float'),np.max(np.squeeze(np.array(self.training_data))[:, 1]).astype('float')])
+        plt.savefig('plots/'+str(i)+'.png') 
+        
+        plt.clf()    
+
+
     def test(self):
 
         confusion_matrix = np.matrix([[0, 0], [0, 0]])
@@ -139,7 +164,7 @@ class svm:
             if w is None: 
                 w=self.weights
             for j in n:
-                if -1-treshold<=np.dot(np.squeeze(np.array(self.training_data[j])),w) < 1+treshold:
+                if -1-treshold<=np.dot(np.squeeze(np.array(self.training_data[j])),w) < 1+treshold or np.sign(np.dot(w, np.squeeze(np.array(self.training_data[j])))).astype('int')!=self.training_labels[j]:
                     self.support_vectors.add(j)
  
 
