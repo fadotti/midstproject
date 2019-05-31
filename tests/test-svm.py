@@ -13,7 +13,8 @@ scale = StandardScaler()
 
 #TRAINING SET SIMULATO
 #(X,y) = make_blobs(n_samples=1000, n_features=2, centers=2, cluster_std=1.05, random_state=62)#linearmente separabili 100% (cambio std)
-(X,y) = make_blobs(n_samples = 10000000, n_features = 10000, centers = 2, cluster_std =10, random_state=99)
+(X,y) = make_blobs(n_samples = 10000, n_features = 1000, centers = 2, cluster_std =100, random_state=45)
+
 
 
 
@@ -28,7 +29,7 @@ plt.show() """
  
 #TEST SET SIMULATO
 #(X,y) = make_blobs(n_samples=3000, n_features=2, centers=2, cluster_std=1.05, random_state=40)#linearmente separabili 100%
-(Xt, yt) = make_blobs(n_samples=3000000, n_features = 10000, centers=2, cluster_std=10, random_state=99)
+(Xt, yt) = make_blobs(n_samples=3000, n_features = 1000, centers=2, cluster_std=100, random_state=45)
 
  
 X1t=np.c_[np.ones((Xt.shape[0])),Xt]
@@ -44,13 +45,14 @@ yt[yt==0]=-1
 #standardizzo i dati sia di training che di set
 X = scale.fit_transform(X)
 Xt = scale.fit_transform(Xt)
-p = svm(X, y, Xt, yt,C=1,max_rounds=100)
+p = svm(X, y, Xt, yt,C=1,max_rounds=1000,treshold=0.001)
 time.sleep(1)
 
 # segna il momento d'inizio
 starttime = datetime.datetime.now()
-p.train(0.1,plots=True)
+p.train(0.1,reduction=False)
 endtime = datetime.datetime.now()
+
 # calcola il tempo trascorso
 deltaT = endtime - starttime
 # calcola il tempo medio
@@ -61,9 +63,20 @@ w=p.weights
 
 #p2.train()
 #w2 = p2.weights
-cose = _svm.SVC(kernel='linear')
+cose = _svm.SVC(kernel='linear',max_iter=1000)
 k = cose.fit(X,y)
 xx = np.linspace(-2.5, 2.5)
+y_pred = k.predict(Xt)
+confusion_matrix = np.matrix([[0, 0], [0, 0]])
+current_row = 0
+for i in range(len(y_pred)):
+    confusion_matrix[int((yt[i]+1)/2),int((y_pred[i]+1)/2)]=confusion_matrix[int((yt[i]+1)/2),int((y_pred[i]+1)/2)]+1
+    current_row += 1
+correct_classification = ((confusion_matrix[0,0]+confusion_matrix[1,1])/float(confusion_matrix.sum()))*100
+confusion_matrix
+correct_classification
+
+
 #X1_std= scale.fit_transform(X1)
 """ a =  -w[0]/w[1]
 yy = a*xx
