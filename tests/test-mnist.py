@@ -12,17 +12,17 @@ test = np.genfromtxt('./datasets/mnist/mnist_test.csv',delimiter=',',skip_header
 print({i:len(test[test[:,0]==i,:]) for i in set(test[:,0])})
 
 # scegliamo 3 e 9 (possono essere due cifre qualsiasi)
-""" 
-binary_train = np.array([el for el in train if el[0]==3 or el[0]==9])
+ 
+binary_train = np.array([el for el in train if el[0]==1 or el[0]==7])
 print({i:len(binary_train[binary_train[:,0]==i,:]) for i in set(binary_train[:,0])})
 y = binary_train[:,0]
 X = binary_train[:,1:]
 
-binary_test = np.array([el for el in test if el[0]==3 or el[0]==9])
+binary_test = np.array([el for el in test if el[0]==1 or el[0]==7])
 y_test = binary_test[:,0]
 X_test = binary_test[:,1:]
 print({i:len(binary_test[binary_test[:,0]==i,:]) for i in set(binary_test[:,0])})
- """
+"""
 y=train[:,0]
 X=train[:,:-1]
 y[y==0]=1
@@ -40,9 +40,9 @@ y_test[y_test==3]=1
 y_test[y_test==4]=1
 y_test[y_test!=1]=-1
 """ 
-y_test[y_test==3]=1
-y_test[y_test==9]=-1
- """
+y_test[y_test==1]=1
+y_test[y_test==7]=-1
+
 mysvm = svm(X,y,X_test,y_test)
 coeff = mysvm.train()
 mysvm.test()

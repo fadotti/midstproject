@@ -33,7 +33,8 @@ class svm:
                  correctly_classified = 0.95, 
                  max_rounds = 100000,
                  kernel = None,
-                 C = None,
+                 C = 1,
+                 treshold = 0.001,
                  cost_function = lambda w,X,y,C:(1/2) * np.sum(w**2) + C * np.sum(list(map(lambda xi,yi: max(0, 1 - yi * np.dot(xi,w)),X, y))),
                  hinge_function = lambda w,x,yi,C:  0 if (yi * np.dot(x,w)) >= 1  else  - C * (yi * x),
                  cores = multiprocessing.cpu_count()
@@ -50,17 +51,15 @@ class svm:
         self.max_rounds = max_rounds
         self.correctly_classified = correctly_classified
         self.kernel = kernel
-        self.C = C if C is not None else self.__select_C()
+        self.C = C 
         self.cost_function = cost_function
         self.hinge_function = hinge_function
-        self.treshold = 0.001
+        self.treshold = treshold
         self.support_vectors = set()
         self.cores = cores
     # STATICS 
-    def __select_C(self):
-        return 1
-    
-
+    def CDRM(self,treshold):
+        return self.__CDRM(treshold)
 
     def __CDRM(self,treshold):
         if(treshold==float('inf')):
@@ -81,6 +80,8 @@ class svm:
                 )
             )
             )
+        pool.terminate()
+        pool.join()
         """ for i in range(len(self.training_labels)):
             d1 = np.sqrt(np.sum(np.squeeze(np.array((self.training_data[i]-m1)))**2)).astype('float')
             d2 = np.sqrt(np.sum(np.squeeze(np.array((self.training_data[i]-m2)))**2)).astype('float')
@@ -97,6 +98,7 @@ class svm:
 
     
     def train(self,treshold=float('inf'),plots=False,reduction = True):
+        plt.style.use('ggplot')
         w = self.weights
         n = len(self.training_labels)
         min_w, min_f = None, float('inf') 
@@ -104,24 +106,33 @@ class svm:
         no_improv = 0
         epoch = 0
         j=0
-        x = self.__CDRM(treshold)
+        x_start = x = self.__CDRM(treshold)
         tresh=1
+        line1 = []
+        p = []
+        x_vec = np.linspace(0,1,100+1)[0:-1]
+        y_vec = [0]*100
+        
         while no_improv < 100 and epoch<self.max_rounds :
             
-            f_value = self.cost_function(w,self.training_data[x], self.training_labels[x],self.C)
+            f_value = self.cost_function(w,self.training_data[x_start], self.training_labels[x_start],self.C)
+            y_vec[-1]=f_value
+            #line1 = self.live_plotter(x_vec,y_vec,line1,identifier=str(epoch)+' - '+str(no_improv))
+            y_vec = (y_vec[1:])
+            y_vec.append(0)
             if  min_f-f_value>self.treshold: 
                 min_w, min_f = w, f_value 
                 no_improv = 0
                 epoch=epoch+1
             else:
-                epoch = 0
+                #epoch = 0
                 no_improv += 1
                 l_rate *= 0.9
             rn.shuffle(x)
-
             for i in x:
                 hinge_i = self.hinge_function(w,np.squeeze(np.array(self.training_data[i])), self.training_labels[i], self.C)
                 w = w - l_rate * (w/len(x)+hinge_i)
+
             if(plots):
                 self.__plot_to_file(j,w)
                 j=j+1
@@ -130,7 +141,9 @@ class svm:
                 tresh=tresh*0.9
                 x = list(self.support_vectors)
             
-        self.weights = min_w    
+        self.weights = min_w
+        if(epoch==self.max_rounds):
+            print('early stop')    
         return self.weights
 
     def __plot_to_file(self,i,w):
@@ -166,7 +179,26 @@ class svm:
             for j in n:
                 if -1-treshold<=np.dot(np.squeeze(np.array(self.training_data[j])),w) < 1+treshold or np.sign(np.dot(w, np.squeeze(np.array(self.training_data[j])))).astype('int')!=self.training_labels[j]:
                     self.support_vectors.add(j)
- 
 
-    
-
+    def live_plotter(self,x_vec,y1_data,line1,identifier='',pause_time=0.1):
+        if line1==[]:
+            # this is the call to matplotlib that allows dynamic plotting
+            plt.ion()
+            fig = plt.figure(figsize=(13,6))
+            ax = fig.add_subplot(111)
+            # create a variable for the line so we can later update it
+            line1, = ax.plot(x_vec,y1_data,'-o',alpha=0.8)        
+            #update plot label/title
+            plt.ylabel('Y Label')
+            plt.title('Title: {}'.format(identifier))
+            plt.show()
+        
+        # after the figure, axis, and line are created, we only need to update the y-data
+        line1.set_ydata(y1_data)
+        # adjust limits if new data goes beyond bounds
+        plt.ylim([np.min(y1_data)-np.std(y1_data),np.max(y1_data)+np.std(y1_data)])
+        # this pauses the data so the figure/axis can catch up - the amount of pause can be altered above
+        plt.pause(pause_time)
+        
+        # return line so we can update it again in the next iteration
+        return line1
